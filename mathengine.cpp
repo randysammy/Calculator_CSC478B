@@ -1,5 +1,7 @@
 #include "mathengine.h"
 #include <qdebug.h>
+#include <cmath>
+
 MathEngine::MathEngine()
 {
     qDebug("MathEngine object created");
@@ -8,6 +10,80 @@ MathEngine::MathEngine()
 MathEngine::~MathEngine()
 {
     qDebug("MathEngine object destroyed");
+}
+
+double MathEngine::ExecuteOp(MathOp op, double a, double b)
+{
+    switch(op)
+    {
+        case (MathOp::Add):
+            return Add(a,b);
+            break;
+
+        case (MathOp::Sub):
+            return Sub(a,b);
+            break;
+
+        case (MathOp::Multi):
+            return Multi(a,b);
+            break;
+
+        case (MathOp::Div):
+            return Div(a,b);
+            break;
+
+        case (MathOp::Sin):
+            return Sin(b);
+            break;
+
+        case (MathOp::Cos):
+            return Cos(b);
+            break;
+
+        case (MathOp::Tan):
+            return Tan(b);
+            break;
+
+        case (MathOp::Asin):
+            return Asin(b);
+            break;
+
+        case (MathOp::Acos):
+            return Acos(b);
+            break;
+
+        case (MathOp::Atan):
+            return Atan(b);
+            break;
+
+        case (MathOp::Sqrt):
+            return Sqrt(b);
+            break;
+
+        case (MathOp::Squared):
+            return Squared(b);
+            break;
+
+        case (MathOp::Log):
+            return Log(b);
+            break;
+
+        case (MathOp::LogN):
+            return LogN(b);
+            break;
+
+        case (MathOp::CuRt):
+            return CuRt(b);
+            break;
+
+        case (MathOp::Exp):
+            return Cos(b);
+            break;
+
+        default:
+        throw std::runtime_error("Undefined mathmatical operation!");
+
+    }
 }
 
 inline double MathEngine::Add(double a, double b)
@@ -27,80 +103,62 @@ inline double MathEngine::Multi(double a, double b)
 
 inline double MathEngine::Div(double a, double b)
 {
-    if (b == 0)
-    {
-        return NAN;
-    }
-    else
-    {
-        return a/b;
-    }
+    return b ? (a/b) : NAN;
 }
 
-double MathEngine::Sin(double)
+double MathEngine::Sin(double degree)
 {
-    // WIP
-    return 0.0 ;
+    return sin( ((degree * Pi) / 180) );
 }
 
-double MathEngine::Cos(double)
+double MathEngine::Cos(double degree)
 {
-    // WIP
-    return 0.0 ;
+    return cos( ((degree * Pi) / 180) );
 }
 
-double MathEngine::Tan(double)
+double MathEngine::Tan(double degree)
 {
-    // WIP
-    return 0.0 ;
+   return tan( ((degree * Pi) / 180) );
 }
 
-double MathEngine::Asin(double)
+double MathEngine::Asin(double degree)
 {
-    // WIP
-    return 0.0 ;
+    return asin( ((degree * Pi) / 180) );
 }
 
-double MathEngine::Acos(double)
+double MathEngine::Acos(double degree)
 {
-    // WIP
-    return 0.0 ;
+    return acos( ((degree * Pi) / 180) );
 }
 
-double MathEngine::Atan(double)
+double MathEngine::Atan(double degree)
 {
-    // WIP
-    return 0.0 ;
+    return atan( ((degree * Pi) / 180) );
 }
 
-double MathEngine::Sqrt(double)
+double MathEngine::Sqrt(double num)
 {
-    // WIP
-    return 0.0 ;
+    return sqrt(num);
 }
 
-double MathEngine::Squared(double)
+double MathEngine::Squared(double num)
 {
-    // WIP
-    return 0.0 ;
+    return num*num;
 }
 
-double MathEngine::Log(double)
+double MathEngine::Log(double num)
 {
-    // WIP
-    return 0.0 ;
+    return log(num);
 }
 
-double MathEngine::LogN(double)
+double MathEngine::LogN(double num)
 {
-    // WIP
-    return 0.0 ;
+    return 0.0 ;//logn(num);
 }
 
-double MathEngine::CuRt(double)
+double MathEngine::CuRt(double num)
 {
-    // WIP
-    return 0.0 ;
+    return cbrt(num);
 }
 
 double MathEngine::Exp(double)

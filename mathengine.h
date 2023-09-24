@@ -1,5 +1,8 @@
 #pragma once
 
+enum class MathOp {Undefined,Add, Sub, Multi, Div, Sin, Cos, Tan, Asin,
+                   Acos, Atan, Sqrt, Squared, Log, LogN, CuRt,
+                   Exp};
 
 class MathEngine
 {
@@ -13,6 +16,9 @@ public:
     MathEngine(MathEngine&&)                   = delete ;
     ~MathEngine();
 
+    double ExecuteOp(MathOp op, double a, double b);
+
+private:
     double Add(double, double);
     double Sub(double, double);
     double Multi(double, double);
@@ -30,8 +36,7 @@ public:
     double CuRt(double);
     double Exp(double);
 
-private:
-    static constexpr double Pi = 3.14;
+    static constexpr double Pi = 3.14159;
 
 };
 

@@ -18,9 +18,12 @@ set(PROJECT_SOURCES
         main.cpp
         mainwindow.cpp
         mainwindow.h
-        mainwindow.ui
         mathengine.h
         mathengine.cpp
+        aboutdialog.h
+        aboutdialog.cpp
+        mainwindow.ui
+        aboutdialog.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

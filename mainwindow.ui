@@ -354,7 +354,7 @@ font: 75 14pt &quot;Times New Roman&quot;;
       <string>ASin</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="ClearButton">
+    <widget class="QPushButton" name="Reset">
      <property name="geometry">
       <rect>
        <x>260</x>

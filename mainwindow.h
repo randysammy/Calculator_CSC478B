@@ -1,7 +1,10 @@
 #pragma once
 
 #include <QMainWindow>
-#include "mathengine.h"
+
+class MathEngine;
+class AboutDialog;
+enum class MathOp;
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -72,8 +75,19 @@ private slots:
 
     void on_MultipButton_released();
 
+    void on_EqualButton_released();
+
+    void on_Reset_released();
+
+    void on_RoundButton_released();
+
 private:
+    void CLS();
     Ui::MainWindow *ui;
+    std::unique_ptr<AboutDialog>AboutDialogPtr;
     std::unique_ptr<MathEngine>MathEnginePtr;
+    MathOp Op;
+    double a;
+    double b;
 };
 
