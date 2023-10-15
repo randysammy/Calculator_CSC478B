@@ -2,7 +2,7 @@
 
 enum class MathOp {Undefined,Add, Sub, Multi, Div, Sin, Cos, Tan, Asin,
                    Acos, Atan, Sqrt, Squared, Log, LogN, CuRt,
-                   Exp};
+                   Exp,Cubed};
 
 class MathEngine
 {
@@ -34,7 +34,8 @@ private:
     double Log(double);
     double LogN(double);
     double CuRt(double);
-    double Exp(double);
+    double Exp(double,double);
+    double Cubed(double);
 
     static constexpr double Pi = 3.14159;
 
