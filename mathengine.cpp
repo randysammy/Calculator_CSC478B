@@ -2,6 +2,7 @@
 #include <qdebug.h>
 #include <cmath>
 
+// Math engine constructor
 MathEngine::MathEngine()
 {
     qDebug("MathEngine object created");
@@ -12,6 +13,7 @@ MathEngine::~MathEngine()
     qDebug("MathEngine object destroyed");
 }
 
+// A method of math engine that executes the operation using switch statement
 double MathEngine::ExecuteOp(MathOp op, double a, double b)
 {
     switch(op)
@@ -77,14 +79,20 @@ double MathEngine::ExecuteOp(MathOp op, double a, double b)
             break;
 
         case (MathOp::Exp):
-            return Cos(b);
+            return Exp(a,b);
             break;
+
+        case (MathOp::Cubed):
+            return Cubed(b);
+            break;
+
 
         default:
         throw std::runtime_error("Undefined mathmatical operation!");
 
     }
 }
+
 
 inline double MathEngine::Add(double a, double b)
 {
@@ -146,14 +154,20 @@ double MathEngine::Squared(double num)
     return num*num;
 }
 
-double MathEngine::Log(double num)
+double MathEngine::Cubed(double num)
 {
-    return log(num);
+    return num*num*num;
 }
 
+// this is the common log base 10
+double MathEngine::Log(double num)
+{
+    return log10(num);
+}
+// Natural log or ln or log base e
 double MathEngine::LogN(double num)
 {
-    return 0.0 ;//logn(num);
+    return log(num) ;
 }
 
 double MathEngine::CuRt(double num)
@@ -161,9 +175,9 @@ double MathEngine::CuRt(double num)
     return cbrt(num);
 }
 
-double MathEngine::Exp(double)
+double MathEngine::Exp(double a,double b)
 {
-    // WIP
-    return 0.0 ;
+
+    return pow(a,b)  ;
 }
 

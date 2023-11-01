@@ -81,9 +81,37 @@ private slots:
 
     void on_RoundButton_released();
 
+    void on_SecondButton_released();
+
+    QString convertToString(double);
+
+    void on_ToNegButton_released();
+
+    void on_FeetToInches_released();
+
+    void on_OuncesToGrams_released();
+
+    void on_GallonsToLiters_released();
+
+    void on_XtoNeg_released();
+
+    void on_DegreeToRad_released();
+
+    void on_Pi_released();
+
+    void on_Factorial_released();
+
+    void on_Mode_released();
+
+    void on_Median_released();
+
+    void on_Mean_released();
+
+
 private:
     void CLS();
     Ui::MainWindow *ui;
+    Ui::MainWindow *uiSecond;
     std::unique_ptr<AboutDialog>AboutDialogPtr;
     std::unique_ptr<MathEngine>MathEnginePtr;
     MathOp Op;
