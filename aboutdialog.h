@@ -22,6 +22,7 @@ private slots:
 
 private:
     Ui::AboutDialog *ui;
+
 };
 
 #endif // ABOUTDIALOG_H
