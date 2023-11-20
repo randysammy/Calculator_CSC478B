@@ -14,7 +14,7 @@ class AboutDialog : public QDialog
 public:
     explicit AboutDialog(QWidget *parent = nullptr);
     ~AboutDialog();
-
+// error was detected by jenkins here - Randy
 private slots:
 
 
@@ -22,6 +22,7 @@ private slots:
 
 private:
     Ui::AboutDialog *ui;
+
 };
 
 #endif // ABOUTDIALOG_H
