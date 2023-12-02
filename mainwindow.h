@@ -13,6 +13,10 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
+/*
+Connects signals and slots to buttons
+(Requirement 1.1.0)
+*/
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
