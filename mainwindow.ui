@@ -912,7 +912,7 @@ font: 10pt &quot;Rockwell&quot;;</string>
       <string>ft/in</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="OucesToGrams">
+    <widget class="QPushButton" name="OuncesToGrams">
      <property name="geometry">
       <rect>
        <x>380</x>
@@ -929,7 +929,7 @@ font: 10pt &quot;Rockwell&quot;;</string>
       <string>oz/grams</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="GallonToLiters">
+    <widget class="QPushButton" name="GallonsToLiters">
      <property name="geometry">
       <rect>
        <x>450</x>

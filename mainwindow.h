@@ -13,10 +13,14 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
+/*
+Connects signals and slots to buttons
+(Requirement 1.1.0)
+*/
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
+// error detected by jenkins here - Randy
     //Ignore any warnings below . . . "for now ;) "
 private slots:
     void on_SinButton_released();

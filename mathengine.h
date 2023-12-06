@@ -3,7 +3,10 @@
 enum class MathOp {Undefined,Add, Sub, Multi, Div, Sin, Cos, Tan, Asin,
                    Acos, Atan, Sqrt, Squared, Log, LogN, CuRt,
                    Exp,Cubed};
-
+/*
+Connects signals and slots to buttons
+(Requirement 1.1.0)
+*/
 class MathEngine
 {
 
