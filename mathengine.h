@@ -10,7 +10,6 @@ Connects signals and slots to buttons
 class MathEngine
 {
 
-
 public:
 
     MathEngine();

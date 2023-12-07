@@ -1,16 +1,14 @@
 #include "mathengine.h"
-#include <qdebug.h>
 #include <cmath>
+#include <stdexcept>
 
 // Math engine constructor
 MathEngine::MathEngine()
 {
-    qDebug("MathEngine object created");
 }
 
 MathEngine::~MathEngine()
 {
-    qDebug("MathEngine object destroyed");
 }
 
 /*
