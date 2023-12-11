@@ -27,6 +27,8 @@ set(PROJECT_SOURCES
         aboutdialog.cpp
         mainwindow.ui
         aboutdialog.ui
+        unitsconversion.h
+        unitsconversion.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -76,5 +78,5 @@ qt_generate_deploy_app_script(
     NO_UNSUPPORTED_PLATFORM_ERROR
 )
 install(SCRIPT ${deploy_script})
-add_subdirectory(Gtest)
-enable_testing()
+#add_subdirectory(Gtest)
+#enable_testing()

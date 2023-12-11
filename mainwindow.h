@@ -1,10 +1,13 @@
 #pragma once
 
 #include <QMainWindow>
+#include "mathengine.h"
+#include "unitsconversion.h"
+#include "aboutdialog.h"
 
-class MathEngine;
-class AboutDialog;
-enum class MathOp;
+enum class LCDs {LCD1, LCD2, Both};
+
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -53,12 +56,6 @@ private slots:
 
     void on_TanButton_released();
 
-    void on_AsinButton_released();
-
-    void on_AcosButton_released();
-
-    void on_AtanButton_released();
-
     void on_SquaredButton_released();
 
     void on_SqRtButton_released();
@@ -103,23 +100,31 @@ private slots:
 
     void on_Pi_released();
 
-    void on_Factorial_released();
-
-    void on_Mode_released();
-
     void on_Median_released();
 
     void on_Mean_released();
 
+    void on_EnterButton_released();
 
 private:
-    void CLS();
+    void CLS(LCDs);
+
+    void DeactivateSecondFuncButton();
+    void HandleTask();
+    double GetNumOnScreen();
+    void LoadUiButtons();
+
+    void EnableDisableGroupButtons(std::vector<QString>,bool);
+    void EnableDisableAllButtons(bool);
+    void EnableDisableKeyPad(bool);
+
     Ui::MainWindow *ui;
-    Ui::MainWindow *uiSecond;
     std::unique_ptr<AboutDialog>AboutDialogPtr;
     std::unique_ptr<MathEngine>MathEnginePtr;
-    MathOp Op;
-    double a;
-    double b;
+    std::unique_ptr<UnitsConversion>UnitConversionPtr;
+    std::unordered_map<QString,QPushButton*>AllMathOpButtons;
+
+    Task task;
+    bool is2ndFunButtonActive ;
 };
 

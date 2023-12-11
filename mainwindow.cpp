@@ -1,17 +1,5 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-#include "mathengine.h"
-#include "aboutdialog.h"
-#include "QTimer"
-
-QString num; // creates empty string hold current data set
-QVector<double> dataVector; // creates empty vector to hold data set
-// set of bool functions used to toggle the 2nd functionalily
-
-bool isModeFunction = false;
-bool isMeanFunction = false;
-bool isMedianFunction = false;
-bool is2ndClicked = false;
 
 /*
 
@@ -19,19 +7,22 @@ Creates standard interface for user
 
 (Requirement 1.0.0)
 */
-MainWindow::MainWindow(QWidget *parent)// constructor for the main window class takes qwidget pointer parent as argument
-    : QMainWindow(parent), // initalize base class
-      ui(new Ui::MainWindow),// creates a new instance of the ui::mainwindow class stores it in ui member variable
-      AboutDialogPtr(std::make_unique<AboutDialog>()), // creates a unique pointer to aboutdialog instance
-      MathEnginePtr(std::make_unique<MathEngine>()), // create a unique pointer to a math engine instance
-      Op(MathOp::Undefined), // used store operation type
-      a(0.0), // initalize a with value of 0.0
-      b(0.0) // initalize b with value of 0.0
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent),
+    ui(new Ui::MainWindow),
+    AboutDialogPtr(std::make_unique<AboutDialog>()),
+    MathEnginePtr(std::make_unique<MathEngine>()),
+    UnitConversionPtr(std::make_unique<UnitsConversion>()),
+    is2ndFunButtonActive(false)
 
 {
     ui->setupUi(this); // calls setup Ui function of the ui object using this as an argument.
-
-    CLS(); // reset calculator to be blank
+    on_Reset_released(); // reset calculator to be blank
+    LoadUiButtons(); //Add all UI push buttons to a vector
+    Task t1 ;
+    t1.Data = {1,2,3,6,4};
+    t1.Op = MathOp::Mean;
+    qDebug()<<"Meeeeeeeeeeeeeeeeean = " <<MathEnginePtr->Run(t1);
 }
 
 MainWindow::~MainWindow()
@@ -49,6 +40,7 @@ void MainWindow::on_DzeroButton_released()// member function for MainWindow Clas
 {
     qDebug("Num00 button clicked !"); // outputs debug message to terminal, help track signal
     ui->LCD->setText(ui->LCD->text() + "00"); // updates text in the widget ui->LCD
+    ui->LCD2->setText(ui->LCD2->text() + "00"); // updates text in the widget ui->LCD2
 }
 
 /*
@@ -72,6 +64,7 @@ void MainWindow::on_ZeroButton_released()
 {
     qDebug("Num0 button clicked !");
     ui->LCD->setText(ui->LCD->text() + "0");
+    ui->LCD2->setText(ui->LCD2->text() + "0");
 }
 /*
 
@@ -82,6 +75,7 @@ void MainWindow::on_DecButton_released()
 {
     qDebug("Dec button clicked !");
     ui->LCD->setText(ui->LCD->text() + ".");
+    ui->LCD2->setText(ui->LCD2->text() + ".");
 }
 /*
 
@@ -92,6 +86,7 @@ void MainWindow::on_No1_released()
 {
     qDebug("Num1 button clicked !");
     ui->LCD->setText(ui->LCD->text() + "1");
+    ui->LCD2->setText(ui->LCD2->text() + "1");
 }
 /*
 
@@ -102,6 +97,7 @@ void MainWindow::on_No2_released()
 {
     qDebug("Num2 button clicked !");
     ui->LCD->setText(ui->LCD->text() + "2");
+    ui->LCD2->setText(ui->LCD2->text() + "2");
 }
 
 /*
@@ -113,6 +109,7 @@ void MainWindow::on_No3_released()
 {
     qDebug("Num3 button clicked !");
     ui->LCD->setText(ui->LCD->text() + "3");
+    ui->LCD2->setText(ui->LCD2->text() + "3");
 }
 /*
 
@@ -123,6 +120,7 @@ void MainWindow::on_No4_released()
 {
     qDebug("Num4 button clicked !");
     ui->LCD->setText(ui->LCD->text() + "4");
+    ui->LCD2->setText(ui->LCD2->text() + "4");
 }
 /*
 
@@ -133,6 +131,7 @@ void MainWindow::on_No5_released()
 {
     qDebug("Num5 button clicked !");
     ui->LCD->setText(ui->LCD->text() + "5");
+    ui->LCD2->setText(ui->LCD2->text() + "5");
 }
 /*
 
@@ -143,6 +142,7 @@ void MainWindow::on_No6_released()
 {
     qDebug("Num6 button clicked !");
     ui->LCD->setText(ui->LCD->text() + "6");
+    ui->LCD2->setText(ui->LCD2->text() + "6");
 }
 /*
 
@@ -153,6 +153,7 @@ void MainWindow::on_No7_released()
 {
     qDebug("Num7 button clicked !");
     ui->LCD->setText(ui->LCD->text() + "7");
+    ui->LCD2->setText(ui->LCD2->text() + "7");
 }
 /*
 
@@ -164,6 +165,7 @@ void MainWindow::on_No8_released()
 {
    qDebug("Num8 button clicked !");
    ui->LCD->setText(ui->LCD->text() + "8");
+   ui->LCD2->setText(ui->LCD2->text() + "8");
 }
 /*
 
@@ -174,6 +176,7 @@ void MainWindow::on_No9_released()
 {
     qDebug("Num9 button clicked !");
     ui->LCD->setText(ui->LCD->text() + "9");
+    ui->LCD2->setText(ui->LCD2->text() + "9");
 }
 
 /*
@@ -185,19 +188,17 @@ Second button function allows users to access secondary functions
 void MainWindow::on_SecondButton_released()
 {
     qDebug("2nd button clicked !");
-    if(is2ndClicked==true){
-        is2ndClicked = false;
+    if(is2ndFunButtonActive){
+        is2ndFunButtonActive = false;
         ui->SecondButton->setStyleSheet("background-color:rgb(230, 145, 56);font: 12pt 'Rockwell'; "); // set color to orange
 
-        qDebug() << "Second is " << is2ndClicked;
+        qDebug() << "Second is " << is2ndFunButtonActive;
 
     }else{
-        is2ndClicked = true;
+        is2ndFunButtonActive = true;
         ui->SecondButton->setStyleSheet("background-color:rgb(204, 204, 0); font: 12pt 'Rockwell';"); // set color to yellow if 2nd is on
 
-        qDebug() << "Second is " << is2ndClicked;
-
-
+        qDebug() << "Second is " << is2ndFunButtonActive;
     }
 }
 
@@ -205,108 +206,76 @@ void MainWindow::on_SecondButton_released()
 
 /*
 
-Sin function
-(Requirement 3.0.1)
+Sin/ArcSin function
+(Requirement 3.0.1 / 3.0.4)
 
 */
 void MainWindow::on_SinButton_released()
 {
-    qDebug("Sin button clicked !");
+    qDebug("Sin/ArcSin button clicked !");
+    EnableDisableKeyPad(false); //disable keypad
+    EnableDisableGroupButtons(std::vector<QString>{"Reset","EqualButton"},true);
 
-    // check if 2nd clicked if true send sin inverse
-    if(is2ndClicked == true){
-        on_AsinButton_released();
-
-    }else{
-        double current_num = ui->LCD->text().toDouble(); // grab the current num convert to double and store it
-        Op = MathOp::Sin; // Stores operation as sun in Op
-        ui->LCD_2->setText("sin(" + convertToString(current_num) + ")" ); // display function in left LCD_2 like this sin(current_num)
+    if(is2ndFunButtonActive) //Asin
+    {
+        ui->LCD2->setText("arcsin(" + ui->LCD->text()+")" );
+        task.Op = MathOp::Asin;
     }
-
+    else
+    {
+        ui->LCD2->setText( "sin(" + ui->LCD->text()+")" ); // display function in left LCD2 like this sin(current_num)
+        task.Op = MathOp::Sin;
+    }
+    task.Data.push_back(GetNumOnScreen());
 }
 /*
 
-Cos function
-(Requirement 3.0.2)
+Cos/ArCos function
+(Requirement 3.0.2 / 3.0.5)
 
 */
 void MainWindow::on_CosButton_released()
 {
-    qDebug("Cos button clicked !");
+    qDebug("Cos/ArCcos button clicked !");
+    EnableDisableKeyPad(false); //disable keypad
+    EnableDisableGroupButtons(std::vector<QString>{"Reset","EqualButton"},true);
 
-    if(is2ndClicked == true){
-        on_AcosButton_released(); // run arccos function
-    }else{
-        double current_num = ui->LCD->text().toDouble();
-        Op = MathOp::Cos;
-        ui->LCD_2->setText("cos(" + convertToString(current_num) + ")" );
+    if(is2ndFunButtonActive) //ArCos
+    {
+        ui->LCD2->setText("arccos(" + ui->LCD->text()+")" );
+        task.Op = MathOp::Acos;
     }
-
+    else
+    {
+        ui->LCD2->setText( "cos(" + ui->LCD->text()+")" ); // display function in left LCD2 like this sin(current_num)
+        task.Op = MathOp::Cos;
+    }
+    task.Data.push_back(GetNumOnScreen());
 }
 
 /*
 
-Tan function
-(Requirement 3.0.3)
+Tan/ArcTan function
+(Requirement 3.0.3 / 3.0.6)
 
 */
 void MainWindow::on_TanButton_released()
 {
-    qDebug("Tan button clicked !");
+    qDebug("Tan/ArcTan button clicked !");
+    EnableDisableKeyPad(false); //disable keypad
+    EnableDisableGroupButtons(std::vector<QString>{"Reset","EqualButton"},true);
 
-    if(is2ndClicked == true){
-        on_AtanButton_released(); // run arctan function
-    }else{
-        double current_num = ui->LCD->text().toDouble();
-        Op = MathOp::Tan;
-        ui->LCD_2->setText("tan(" + convertToString(current_num) + ")" );
+    if(is2ndFunButtonActive) //ArCos
+    {
+        ui->LCD2->setText("arctan(" + ui->LCD->text()+")" );
+        task.Op = MathOp::Atan;
     }
-
-}
-
-/*
-
-Arcsin function
-(Requirement 3.0.4)
-
-*/
-void MainWindow::on_AsinButton_released()
-{
-    qDebug("ASin button clicked !");
-
-    double current_num = ui->LCD->text().toDouble();
-    Op = MathOp::Asin;
-    ui->LCD_2->setText("arcsin(" + convertToString(current_num) + ")" );
-}
-
-/*
-
-Arccos function
-(Requirement 3.0.5)
-
-*/
-
-void MainWindow::on_AcosButton_released()
-{
-    qDebug("ACos button clicked !");
-
-    double current_num = ui->LCD->text().toDouble();
-    Op = MathOp::Acos;
-    ui->LCD_2->setText("arccos(" + convertToString(current_num) + ")" );
-}
-
-/*
-
-Arctan function
-(Requirement 3.0.6)
-
-*/
-void MainWindow::on_AtanButton_released()
-{
-    qDebug("ATan button clicked !");
-    double current_num = ui->LCD->text().toDouble();
-    Op = MathOp::Atan;
-    ui->LCD_2->setText("arctan(" + convertToString(current_num) + ")" );
+    else
+    {
+        ui->LCD2->setText( "tan(" + ui->LCD->text()+")" ); // display function in left LCD2 like this sin(current_num)
+        task.Op = MathOp::Tan;
+    }
+    task.Data.push_back(GetNumOnScreen());
 }
 
 /*
@@ -318,9 +287,11 @@ Square of a number
 void MainWindow::on_SquaredButton_released()
 {
     qDebug("Squared button clicked !");
-    double current_num = ui->LCD->text().toDouble();
-    Op = MathOp::Squared;
-    ui->LCD_2->setText(convertToString(current_num) + "²" );
+    EnableDisableKeyPad(false); //disable keypad
+    EnableDisableGroupButtons(std::vector<QString>{"Reset","EqualButton"},true);
+    ui->LCD2->setText(ui->LCD->text()+"²" );
+    task.Op = MathOp::Squared;
+    task.Data.push_back(GetNumOnScreen());
 }
 
 /*
@@ -332,9 +303,11 @@ Square root function
 void MainWindow::on_SqRtButton_released()
 {
     qDebug("SqrRT button clicked !");
-    double current_num = ui->LCD->text().toDouble();
-    Op = MathOp::Sqrt;
-    ui->LCD_2->setText( "√(" +convertToString(current_num) + ")" );
+    EnableDisableKeyPad(false); //disable keypad
+    EnableDisableGroupButtons(std::vector<QString>{"Reset","EqualButton"},true);
+    ui->LCD2->setText( "√(" +ui->LCD->text() + ")" );
+    task.Op = MathOp::Sqrt;
+    task.Data.push_back(GetNumOnScreen());
 }
 
 
@@ -347,9 +320,15 @@ Exponent of a number
 void MainWindow::on_ExpButton_released()
 {
     qDebug("Exp button clicked !");
-    Op = MathOp::Exp;
-    a = ui->LCD->text().toDouble();
-    CLS();
+    EnableDisableGroupButtons(std::vector<QString>{"Reset","EqualButton"},true);
+    ui->LCD2->setText( "(" +ui->LCD->text() + ")" +"^");
+    task.Op = MathOp::Exp;
+    task.Data.push_back(GetNumOnScreen());
+    /* Note that Exp value will be grabbed by HandleTask function
+     * Without clearing the screen the number will be added to the exp
+     * Therefor it is required here
+     */
+    CLS(LCDs::LCD1);
 }
 
 /*
@@ -361,31 +340,46 @@ CubeRoot of a number
 void MainWindow::on_CbRtButton_released()
 {
     qDebug("CbRT button clicked !");
-    double current_num = ui->LCD->text().toDouble();
+    EnableDisableKeyPad(false); //disable keypad
+    EnableDisableGroupButtons(std::vector<QString>{"Reset","EqualButton"},true);
 
-    if(is2ndClicked==true){
-        Op = MathOp::Cubed;
-        ui->LCD_2->setText(convertToString(current_num) + "³" );
 
-    }else{
-        Op = MathOp::CuRt;
-        ui->LCD_2->setText("∛( " + convertToString(current_num) + ")" );
-
+    if(is2ndFunButtonActive)
+    {
+        task.Op = MathOp::Cubed;
+        ui->LCD2->setText(ui->LCD->text() + "³" );
     }
+    else
+    {
+        task.Op = MathOp::CuRt;
+        ui->LCD2->setText("∛( " + ui->LCD->text() + ")" );
+    }
+    task.Data.push_back(GetNumOnScreen());
 }
 /*
 
-Common log base10 of a number
+Common log base10 of a number / 10^X
 (Requirement 3.2.1)
 
 */
 // log base 10 function
 void MainWindow::on_LogButton_released()
 {
-    qDebug("Log button clicked !");
-    double current_num = ui->LCD->text().toDouble();
-    Op = MathOp::Log;
-    ui->LCD_2->setText( "log(" +convertToString(current_num) + ")" );
+    qDebug("Log/10^x button clicked !");
+    EnableDisableKeyPad(false); //disable keypad
+    EnableDisableGroupButtons(std::vector<QString>{"Reset","EqualButton"},true);
+
+    if(is2ndFunButtonActive)
+    {
+        ui->LCD2->setText(+ "(10)^" + ui->LCD->text());
+        task.Op = MathOp::TenTo;
+    }
+    else
+    {
+        ui->LCD2->setText("log("+ ui->LCD->text()+")" );
+        task.Op = MathOp::Log ;
+    }
+    task.Data.push_back(GetNumOnScreen());
 }
 /*
 
@@ -396,10 +390,21 @@ Natural log or ln of a number
 // ln natural logarthim function
 void MainWindow::on_LognButton_released()
 {
-    qDebug("LogN button clicked !");
-    double current_num = ui->LCD->text().toDouble();
-    Op = MathOp::LogN;
-    ui->LCD_2->setText( "ln(" +convertToString(current_num) + ")" );
+    qDebug("ln / e^x button clicked !");
+    EnableDisableKeyPad(false); //disable keypad
+    EnableDisableGroupButtons(std::vector<QString>{"Reset","EqualButton"},true);
+
+    if(is2ndFunButtonActive)
+    {
+        ui->LCD2->setText(+ "(e)^" + ui->LCD->text());
+        task.Op = MathOp::EtoExp;
+    }
+    else
+    {
+        ui->LCD2->setText("ln("+ ui->LCD->text()+")");
+        task.Op = MathOp::LogN;
+    }
+    task.Data.push_back(GetNumOnScreen());
 }
 
 /*
@@ -410,10 +415,22 @@ Addition operation
 */
 void MainWindow::on_AddButton_released()
 {
-    qDebug("Add button clicked !"); // logs message in terminal when add button is clicked
-    Op = MathOp::Add; // Set the operation equal to MathOp::Add
-    a = ui->LCD->text().toDouble(); // grabs text in LCD converts to double and assigns to a
-    CLS();// clear screen
+    qDebug("Add button clicked !");
+    EnableDisableGroupButtons(std::vector<QString>{"AddButton","EqualButton"},true);
+    if(task.Op == MathOp::Add || task.Op == MathOp::Undefined)
+    {
+        task.Op = MathOp::Add;
+        task.Data.push_back(GetNumOnScreen());
+        CLS(LCDs::LCD1);
+        ui->LCD2->setText(ui->LCD2->text() + "+");
+    }
+    else
+    {
+        HandleTask();
+        task.Op = MathOp::Add;
+        CLS(LCDs::LCD1);
+        ui->LCD2->setText(ui->LCD2->text() + "+");
+    }
 }
 
 /*
@@ -425,9 +442,19 @@ Subtraction operation
 void MainWindow::on_SubButton_released()
 {
     qDebug("Sub button clicked !");
-    Op = MathOp::Sub;
-    a = ui->LCD->text().toDouble(); //gets text in LCD converts to double and assign to var a
-    CLS();
+    EnableDisableGroupButtons(std::vector<QString>{"SubButton","EqualButton"},true);
+    if(task.Op == MathOp::Sub || task.Op == MathOp::Undefined )
+    {
+        task.Op = MathOp::Sub;
+        task.Data.push_back(GetNumOnScreen());
+        CLS(LCDs::LCD1);
+        ui->LCD2->setText(ui->LCD2->text() + "-");
+    }
+    else
+    {
+        HandleTask();
+    }
+
 }
 
 /*
@@ -438,10 +465,20 @@ Division operation
 */
 void MainWindow::on_DivButton_released()
 {
-    qDebug("Div button clicked !");
-    Op = MathOp::Div;
-    a = ui->LCD->text().toDouble(); //gets text in LCD converts to double and assign to var a
-    CLS();
+    qDebug("Division button clicked !");
+    EnableDisableGroupButtons(std::vector<QString>{"DivButton","EqualButton"},true);
+    if(task.Op == MathOp::Div || task.Op == MathOp::Undefined )
+    {
+        task.Op = MathOp::Div;
+        task.Data.push_back(GetNumOnScreen());
+        CLS(LCDs::LCD1);
+        ui->LCD2->setText(ui->LCD2->text() + "/");
+    }
+    else
+    {
+        HandleTask();
+    }
+
 }
 
 /*
@@ -452,10 +489,19 @@ Multiplication operation
 */
 void MainWindow::on_MultipButton_released()
 {
-    qDebug("Multip button clicked !");
-    Op = MathOp::Multi;
-    a = ui->LCD->text().toDouble(); //gets text in LCD converts to double and assign to var a
-    CLS();
+    EnableDisableGroupButtons(std::vector<QString>{"MultipButton","EqualButton"},true);
+    if(task.Op == MathOp::Multi || task.Op == MathOp::Undefined )
+    {
+        task.Op = MathOp::Multi;
+        task.Data.push_back(GetNumOnScreen());
+        CLS(LCDs::LCD1);
+        ui->LCD2->setText(ui->LCD2->text() + "*");
+    }
+    else
+    {
+        HandleTask();
+    }
+    qDebug("Multi button clicked !");
 }
 
 //---------- MISC FUNCTIONS ----------
@@ -467,10 +513,25 @@ Reset calcutlrou UI
 (Requirement 2.5.0)
 
 */
-void MainWindow::CLS()
+void MainWindow::CLS(LCDs lcd)
 {
-    ui->LCD->setText(""); // clear 1st LCD
-    ui->LCD_2->setText("");// cleard 2nd LCD
+    switch(lcd)
+    {
+    case (LCDs::LCD1):
+        ui->LCD->setText(""); // clear 1st LCD
+        break;
+
+    case (LCDs::LCD2):
+        ui->LCD2->setText("");// cleard 2nd LCD
+        break;
+
+    case (LCDs::Both):
+        ui->LCD->setText(""); // clear 1st LCD
+        ui->LCD2->setText("");// cleard 2nd LCD
+        break;
+    default:
+        throw std::runtime_error("Undefined CLS operation!");
+    }
 }
 
 /*
@@ -495,18 +556,19 @@ Converts feet to inches and vice versa
 (Requirement 3.4.1 - 3.4.2)
 */
 
-void MainWindow::on_FeetToInches_released(){
-    if(is2ndClicked == true){ // conversion for inches to feet
-        a = ui->LCD->text().toDouble();
-        double convertedValue = a / 12;
-        ui->LCD_2->setText( convertToString(convertedValue) + " feet" );
-    }else{ // conversion for feet to inches
-        a = ui->LCD->text().toDouble();
-        double convertedValue = a * 12;
-        ui->LCD_2->setText( convertToString(convertedValue) + " inches" );
+void MainWindow::on_FeetToInches_released()
+{
+    qDebug("Feet-Inches button clicked !");
+    EnableDisableGroupButtons(std::vector<QString>{"Reset"},true);
+    EnableDisableKeyPad(false);
+    if(is2ndFunButtonActive)
+    { // conversion for inches to feet
+        ui->LCD2->setText(convertToString(UnitConversionPtr->Convert(Units::InToFt,GetNumOnScreen())) + " feet" );
     }
-
-
+    else
+    { // conversion for feet to inches
+        ui->LCD2->setText(convertToString(UnitConversionPtr->Convert(Units::FtToIn,GetNumOnScreen())) + " inches");
+    }
 }
 /*
 
@@ -515,15 +577,20 @@ Converts ounces to grams and vice versa
 (Requirement 3.4.3 - 3.4.4)
 */
 
-void MainWindow::on_OuncesToGrams_released(){
-    if(is2ndClicked == true){ // conversion for grams to ounces
-        a = ui->LCD->text().toDouble();
-        double convertedValue = a * 0.035275;
-        ui->LCD_2->setText( convertToString(convertedValue) + " ounces" );
-    }else{ // conversion for ounces to gram
-        a = ui->LCD->text().toDouble();
-        double convertedValue = a / 0.035275;
-        ui->LCD_2->setText( convertToString(convertedValue) + " grams" );
+void MainWindow::on_OuncesToGrams_released()
+{
+    qDebug("Grams-Ounces button clicked !");
+    EnableDisableGroupButtons(std::vector<QString>{"Reset"},true);
+    EnableDisableKeyPad(false);
+
+    if(is2ndFunButtonActive)
+    { // conversion for grams to ounces
+        ui->LCD2->setText(convertToString(UnitConversionPtr->Convert(Units::GrToOz,GetNumOnScreen())) + " ounces" );
+    }
+
+    else
+    { // conversion for ounces to gram
+        ui->LCD2->setText(convertToString(UnitConversionPtr->Convert(Units::OzToGr,GetNumOnScreen())) + " grams" );
     }
 
 }
@@ -534,17 +601,19 @@ Converts gallons to liter  and vice versa
 (Requirement 3.4.7 - 3.4.8)
 */
 
-void MainWindow::on_GallonsToLiters_released(){
-    if(is2ndClicked == true){ // conversion for liters to gallons
-        a = ui->LCD->text().toDouble();
-        double convertedValue = a * 0.264172;
-        ui->LCD_2->setText( convertToString(convertedValue) + " gallons" );
-    }else{ // conversion for gallons to liters
-        a = ui->LCD->text().toDouble();
-        double convertedValue = a / 0.264172;
-        ui->LCD_2->setText( convertToString(convertedValue) + " liters" );
-    }
+void MainWindow::on_GallonsToLiters_released()
+{
+    qDebug("Gal-Liter button clicked !");
+    EnableDisableGroupButtons(std::vector<QString>{"Reset"},true);
+    EnableDisableKeyPad(false);
 
+    if(is2ndFunButtonActive)
+    { // conversion for liters to gallons
+        ui->LCD2->setText(convertToString(UnitConversionPtr->Convert(Units::LtToGal,GetNumOnScreen())) + " Gallons" );
+    }else
+    { // conversion for gallons to liters
+        ui->LCD2->setText(convertToString(UnitConversionPtr->Convert(Units::GalToLt,GetNumOnScreen())) + " Liters" );
+    }
 }
 
 /*
@@ -554,61 +623,52 @@ Converts degree to radians and vice versa
 (Requirement 3.4.5 - 3.4.6)
 */
 
-void MainWindow::on_DegreeToRad_released(){
-    if(is2ndClicked == true){ // convert rad to degree
-        a = ui->LCD->text().toDouble();// grab value from UI
-        double convertedValue = a * (180/3.14159265359);
-        ui->LCD_2->setText(convertToString(convertedValue) + "°");
-    }else{ // convert degree to rad
-        a = ui->LCD->text().toDouble();// grab value from UI
-        double convertedValue = a * (3.14159265359/180);
-        ui->LCD_2->setText(convertToString(convertedValue) + " radians");
+void MainWindow::on_DegreeToRad_released()
+{
+    qDebug("Deg to Radr button clicked !");
+    EnableDisableGroupButtons(std::vector<QString>{"Reset"},true);
+    EnableDisableKeyPad(false);
+
+    if(is2ndFunButtonActive)
+    { // convert rad to degree
+        ui->LCD2->setText(convertToString(UnitConversionPtr->Convert(Units::RadToDeg,GetNumOnScreen())) + "°" );
     }
-
-
-}
-
-
-/*
-
-Produces reciprocal of a number
-
-(Requirement 3.8.0)
-*/
-
-// negative exponent (recirpocal of x)
-void MainWindow::on_XtoNeg_released(){
-    if(is2ndClicked==true){
-        on_Factorial_released();
-    }else{
-        a = ui->LCD->text().toDouble();
-        double convertedValue = 1 / a;
-        ui->LCD_2->setText( convertToString(convertedValue));
+    else
+    { // convert degree to rad
+       ui->LCD2->setText(convertToString(UnitConversionPtr->Convert(Units::DegToRad,GetNumOnScreen())) + "Radians" );
     }
 }
 
-
 /*
 
-Produces factorial of an number
+Produces reciprocal of a number & Factorial fucntion
 
-(Requirement 3.7.0)
+(Requirement 3.8.0  -  3.7.0)
 */
-// factorial function
-void MainWindow::on_Factorial_released(){
-    a = ui->LCD->text().toDouble();
-    double factorial = 1.0;
-    for(int i = 1; i <= a; ++i) {
-        factorial *= i;
-    }
-    ui->LCD_2->setText( convertToString(factorial) );
 
+// negative exponent (recirpocal of x) and factorial function
+void MainWindow::on_XtoNeg_released()
+{
+    qDebug("Deg to Radr button clicked !");
+    EnableDisableGroupButtons(std::vector<QString>{"Reset","EqualButton"},true);
+    EnableDisableKeyPad(false);
+    if(is2ndFunButtonActive)
+    {//factorial
+       ui->LCD2->setText("!" + ui->LCD->text());
+       task.Op = MathOp::Fact;
+
+    }
+    else
+    {
+        task.Op = MathOp::Rec;
+    }
+    task.Data.push_back(GetNumOnScreen());
 }
 
 // Pi
-void MainWindow::on_Pi_released(){
-    ui->LCD->setText(ui->LCD->text() + "3.14159265358");
-
+void MainWindow::on_Pi_released()
+{
+    ui->LCD->setText(ui->LCD->text() + convertToString(MathEnginePtr->Pi));
 }
 
 /*
@@ -619,17 +679,12 @@ Resets initalize values for calc.
 void MainWindow::on_Reset_released()
 {
     qDebug("Reset button clicked");
-    CLS(); // clear screen CLS() function
-    a= 0.0; // set a and b to 0.0
-    b= 0.0;
-    isModeFunction = false;
-    isMedianFunction = false;
-    isMeanFunction = false;
-
-    num = "" ; // resets string for mode, median, function
-    dataVector.clear(); // resets vector array
-
-    Op = MathOp::Undefined ; // set the current operation to undefined
+    CLS(LCDs::Both); // clear screen CLS(LCDs::Both) function
+    DeactivateSecondFuncButton();
+    EnableDisableAllButtons(true);
+    EnableDisableKeyPad(true);
+    task.Data.clear();
+    task.Op = MathOp::Undefined;
 }
 
 
@@ -640,150 +695,19 @@ void MainWindow::on_RoundButton_released()
 
 /*
 
-Finds mode in an array
-
-(Requirement 3.5.1)
-*/
-
-QVector<double> findMode(const QVector<double> &numbers) {
-    QMap<double, int> countMap; // creates hashmap with double as key and int as values
-
-    //iterate each element in numbers
-    for (const double &num : numbers) {
-        countMap[num]++; //increment by 1 in map
-    }
-
-    QVector<double> modes;// create vector to store modes
-    int maxCount = 0; // counter to keep track of max
-
-
-    for (const auto &key : countMap.keys()) { // iterate the keys in hashmap
-        int count = countMap[key]; // store the count of current iteration
-        if (count > maxCount) { // if current count is greater than max
-            maxCount = count; // set max count to current value in the iteration
-        }
-    }
-
-    // collect all numbers with the max count
-    for (const auto &key : countMap.keys()) { // iterate the kets in hashmap
-        if (countMap[key] == maxCount) { // if the current value is equal to max count
-            modes.append(key); // append mode vector
-        }
-    }
-
-    return modes;
-}
-
-/*
-
-Finds median in an array
-
-(Requirement 3.5.3)
-*/
-double findMedian(const QVector<double>& values) {
-    if (values.isEmpty()) { // if vector is empty
-        return 0.0;
-    }
-
-    QVector<double> sortedValues = values; // create copy of the vector array
-    std::sort(sortedValues.begin(), sortedValues.end());// sort in asceding order
-
-    int size = sortedValues.size();// get size of array
-    if (size % 2 == 0) { // checks if array is even
-        int mid = size / 2; // find index of middle element
-        return (sortedValues[mid - 1] + sortedValues[mid]) / 2.0; // return avg of two middle elements
-    } else { // array is odd
-        int mid = size / 2; // find index of middle element
-        return sortedValues[mid]; // return middle value
-    }
-}
-
-/*
-
-Finds mean in an array
-
-(Requirement 3.5.2)
-*/
-double findMean(const QVector<double>& values) {
-    if (values.isEmpty()) { // if vector is empty
-        return 0.0;
-    }
-
-    double sum = 0.0; // initlize sum to 0
-    for (const double& value : values) { // itereate through array
-        sum += value; // add each element to sum
-    }
-
-    return sum / values.size(); // return the mean sum / num of elements
-}
-
-
-
-/*
-
-Finds mode in an array
-
-(Requirement 3.5.1)
-*/
-
-
-void MainWindow::on_Mode_released(){
-
-
-    isModeFunction = true; // set is mode to true
-
-    qDebug("Runnings mode function");
-
-    ui->LCD_2->setText( "Mode()" ); // displays Mode() on second LCD
-
-
-    double number = ui->LCD->text().toDouble(); // set number equal to current value in right LCD
-    dataVector.push_front(number); // push number into vector
-
-    num = num  + convertToString(number)+ ","; // produce a string with multiple numbers for display ex, 1,2,3,4
-
-    ui->LCD_2->setText( "Mode(" + num  +  ")" ); // displays Mode on second LCD with the curret set of numbers as a string
-
-
-
-    //qDebug()<< dataVector;
-
-    ui->LCD->setText( "" ); // clear screen so we can take a new number for mode
-
-
-}
-
-/*
-
 Finds mean in an array
 
 (Requirement 3.5.2)
 */
 
-void MainWindow::on_Mean_released(){
-
-    isMeanFunction = true; // set is mean to true
-
-    qDebug("Runnings mean function");
-
-    ui->LCD_2->setText( "Mean()" ); // displays Mode() on second LCD
-
-    double number = ui->LCD->text().toDouble(); // grab the current number on right LCD and store it in number var
-
-    dataVector.push_front(number); // push number into vector
-
-    num = num  + convertToString(number)+ ","; // converts the current number to string and concatene with previous numbers ex. 9,
-
-
-    ui->LCD_2->setText( "Mean(" + num  +  ")" ); // displays Mode on second LCD with the curret set of numbers as a string
-
-    //qDebug()<< dataVector;
-
-    ui->LCD->setText( "" ); // clear screen so we can take a new number for mode
-
-
+void MainWindow::on_Mean_released()
+{
+    CLS(LCDs::Both);
+    qDebug("Mean function button clicked");
+    task.Op = MathOp::Mean;
+    EnableDisableGroupButtons(std::vector<QString>{"Reset","EqualButton","EnterButton"},true);
+    ui->LCD2->setText("Mean ");
 }
-
 /*
 
 Finds median in an array
@@ -791,29 +715,13 @@ Finds median in an array
 (Requirement 3.5.3)
 */
 
-void MainWindow::on_Median_released(){
-
-    isMedianFunction = true; // set is median to true
-
-    qDebug("Runnings median function");
-
-    ui->LCD_2->setText( "Median()" ); // displays Mode() on second LCD
-
-    double number = ui->LCD->text().toDouble(); // grab the current number on right LCD and store it in number var
-
-    dataVector.push_front(number); // push number into vector
-
-    num = num  + convertToString(number)+ ","; // converts the current number to string and concatene with previous numbers ex. 9,
-
-
-    ui->LCD_2->setText( "Median(" + num  +  ")" ); // displays Mode on second LCD with the curret set of numbers as a string
-
-    //qDebug()<< dataVector;
-    ui->LCD->setText( "" ); // clear screen so we can take a new number for mode
-
-
-
-
+void MainWindow::on_Median_released()
+{
+    qDebug("Mean function button clicked");
+    CLS(LCDs::Both);
+    task.Op = MathOp::Median;
+    EnableDisableGroupButtons(std::vector<QString>{"Reset","EqualButton","EnterButton"},true);
+    ui->LCD2->setText("Median ");
 }
 /*
 
@@ -823,47 +731,105 @@ Allows user to return result to UI
 void MainWindow::on_EqualButton_released()
 {
 
-    qDebug("Equal button clicked !");
+    HandleTask();
+    ui->LCD2->setText(ui->LCD->text());
+    EnableDisableAllButtons(true);
+    EnableDisableKeyPad(true);
+    DeactivateSecondFuncButton();
+}
 
+void MainWindow::on_EnterButton_released()
+{
+    ui->LCD2->setText(ui->LCD2->text() + " ");
+    task.Data.push_back(GetNumOnScreen());
+    CLS(LCDs::LCD1); // clear for the next number to be entered
+}
 
-    // checks if want to find mode, mean or median function
-    if(isModeFunction==true){
-        QVector<double> modes = findMode(dataVector); // creates array to store mode
-        ui->LCD->setText(convertToString(modes[0]));// sets ui to first element of string
-        isModeFunction = false;
-        num = "" ; // resets string for mode, median, function
-        dataVector.clear(); // resets vector array
-        return;
+void MainWindow::DeactivateSecondFuncButton()
+{
+    is2ndFunButtonActive = false;
+    ui->SecondButton->setStyleSheet("background-color:rgb(230, 145, 56);font: 12pt 'Rockwell'; "); // set color to orange
+}
+
+void MainWindow::HandleTask()
+{
+    qDebug()<<"Size is"<<task.Data.size();
+    if (task.Data.size())
+    {
+        //Edge case, mean and median data input might not have anything on the screen when enter is clicked
+        if((task.Op != MathOp::Mean) && (task.Op != MathOp::Median))
+            {
+                task.Data.push_back(GetNumOnScreen());
+            }
+            ui->LCD->setText(convertToString(MathEnginePtr->Run(task)));
+            qDebug()<<MathEnginePtr->Run(task);
+            task.Data.clear();
+            task.Op = MathOp::Undefined; //not sure I need this for now     
+    }
+    else
+    {
+            qDebug()<<"WARNING, HandleTask called with NO DATA !!?";
+    }
+}
+
+double MainWindow::GetNumOnScreen()
+{
+    if(!ui->LCD->text().isEmpty())
+    {
+            return ui->LCD->text().toDouble();
+    }
+    else
+    {
+            qDebug()<<"WARNING, GetNumOnScreen called with invalid value !!?";
+            CLS(LCDs::Both);
+            EnableDisableGroupButtons(std::vector<QString>{"Reset"},true);
+            EnableDisableKeyPad(false);
+            ui->LCD2->setText("ERROR, invalid value, please reset");
+            return 0.0 ;
     }
 
-    if(isMeanFunction==true){
-        double mean = findMean(dataVector);
-        ui->LCD->setText(convertToString(mean));
-        isMeanFunction = false;
-        num = "" ; // resets string for mode, median, function
-        dataVector.clear(); // resets vector array
-        return;
+}
+
+
+//-----------------------------UI helpers-----------------------------
+//Fille a map where K = button name and V = a pointer to the button on the UI
+void MainWindow::LoadUiButtons()
+{
+    auto AdvBox = ui->AdvOpsBox->findChildren<QPushButton*>();
+    for(const auto& button : AdvBox)
+    {
+            AllMathOpButtons.insert(qMakePair(button->objectName(),button));
     }
-
-    if(isMedianFunction==true){
-        double median = findMedian(dataVector);
-        ui->LCD->setText(convertToString(median));
-        isMedianFunction = false;
-        num = "" ; // resets string for mode, median, function
-        dataVector.clear(); // resets vector array
-        return;
+    auto SimpleOps = ui->SimpleOpBox->findChildren<QPushButton*>();
+    for(const auto& button : SimpleOps)
+    {
+            AllMathOpButtons.insert(qMakePair(button->objectName(),button));
     }
+}
 
-    b = ui->LCD->text().toDouble();// grabs text displayed on lcd converts to double and assign to b
-
-
-    if(Op == MathOp::Undefined){
-        qDebug() << "No operation selected " ;
-        return;
-    }else {
-        ui->LCD->setText(QString::number((MathEnginePtr->ExecuteOp(Op, a, b)))); // execute operation using a and b and display on LCD
-
+void MainWindow::EnableDisableAllButtons(bool isEnabled)
+{
+    for(const auto& button :AllMathOpButtons)
+    {
+           button.second->setEnabled(isEnabled);
     }
+}
 
+//Used to enable/disble a group of buttons
+void MainWindow::EnableDisableGroupButtons(std::vector<QString>ButtonsToEnable, bool isEnabled)
+{
+    EnableDisableAllButtons(false); //disable all first
+    for(const auto& ButtonName :ButtonsToEnable)
+    {
+           AllMathOpButtons.at(ButtonName)->setEnabled(isEnabled);
+    }
+}
 
+void MainWindow::EnableDisableKeyPad(bool isEnabled)
+{
+    auto KeyPadButtons = ui->KeyPadBox->findChildren<QPushButton*>();
+    for (const auto& button : KeyPadButtons)
+    {
+           button->setEnabled(isEnabled);
+    }
 }
