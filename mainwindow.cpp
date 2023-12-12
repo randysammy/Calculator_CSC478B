@@ -4,7 +4,7 @@
 /*
 
 Creates standard interface for user
-
+testing the editors here 
 (Requirement 1.0.0)
 */
 MainWindow::MainWindow(QWidget *parent)
